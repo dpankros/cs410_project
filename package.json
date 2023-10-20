@@ -1,0 +1,19 @@
+{
+  "name": "cs410_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dpankros/cs410_project.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dpankros/cs410_project/issues"
+  },
+  "homepage": "https://github.com/dpankros/cs410_project#readme"
+}
