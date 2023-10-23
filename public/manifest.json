@@ -21,12 +21,9 @@
   "host_permissions": [
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": true
+    "service_worker": "background.js"
   },
-  "options_page": "settings.html",
+  "options_page": "index.html",
   "side_panel": {
     "default_path": "sidepanel.html"
   }
