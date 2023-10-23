@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Campuswire Related Pages",
+  "short_name": "CS410 Project",
+  "description": "",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Open the Campuswire related pages sidebar"
+  },
+  "icons": {
+    "16": "logo192.png",
+    "48": "logo192.png",
+    "128": "logo192.png"
+  },
+  "permissions": [
+    "scripting",
+    "sidePanel",
+    "storage"
+  ],
+  "host_permissions": [
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://*.campuswire.com/*"],
+      "css": ["../src/App.css"],
+      "js": ["../src/index.js"]
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  }
+}

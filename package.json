@@ -1,10 +1,22 @@
 {
   "name": "cs410_project",
   "version": "1.0.0",
+  "private": true,
   "description": "",
-  "main": "index.js",
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
   "scripts": {
-    "test": "test"
+    "start": "node_modules/.bin/react-scripts start",
+    "build": "INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "test": "node_modules/.bin/react-scripts test",
+    "eject": "node_modules/.bin/react-scripts eject"
   },
   "repository": {
     "type": "git",
@@ -15,5 +27,23 @@
   "bugs": {
     "url": "https://github.com/dpankros/cs410_project/issues"
   },
-  "homepage": "https://github.com/dpankros/cs410_project#readme"
+  "homepage": "https://github.com/dpankros/cs410_project#readme",
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
