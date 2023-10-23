@@ -27,7 +27,6 @@
   "bugs": {
     "url": "https://github.com/dpankros/cs410_project/issues"
   },
-  "homepage": "https://github.com/dpankros/cs410_project#readme",
   "eslintConfig": {
     "extends": [
       "react-app",

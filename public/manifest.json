@@ -20,13 +20,8 @@
   ],
   "host_permissions": [
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://*.campuswire.com/*"],
-      "css": ["../src/App.css"],
-      "js": ["../src/index.js"]
-    }
-  ],
+
+  "options_page": "settings.html",
   "side_panel": {
     "default_path": "sidepanel.html"
   }
