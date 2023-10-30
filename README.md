@@ -5,6 +5,8 @@
 ```bash
 npm i
 npm run build
+OR
+npm run start
 ```
 
 Then in your Chrome, 

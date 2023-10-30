@@ -46,7 +46,9 @@ const copyPlugin = new CopyPlugin({
                 ignore: ['**/index.html', '**/menu.html', '**/sidepanel.html']
             }
         },
-        { from: 'src/background.js', to: '' }
+        { from: 'src/common', to: 'common'},
+        { from: 'src/background.js', to: '' },
+        { from: 'src/campuswire.js', to: '' }
     ]
 })
 
@@ -56,9 +58,9 @@ module.exports = {
             copyPlugin
         ),
         multipleEntry.addMultiEntry,
+
     ),
     devServer: overrideDevServer(
         devServerConfig()
-    ),
-
+    )
 };
