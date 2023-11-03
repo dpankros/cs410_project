@@ -11,7 +11,7 @@
             }
         }
 
-        function onPostChange(m) {
+        async function onPostChange(m) {
             const {type, body, url: _url} = m;
 
             console.log(`onPostChange:`, m);
@@ -19,7 +19,12 @@
             url = _url;
 
             // TODO: Do some processing on the message
-
+            const { OpenAiKey: key, OpenAiOrg: org = null }  = chrome.storage.sync.get(["OpenAiKey", "OpenAiOrg"])
+            let searchTerms;
+            if (key) {
+                const chatGpt = ChatGptAPI(key, org);
+                searchTerms = await chatGpt.getSearchTermsForDocument(body);
+            }
             // send the message to the sidebar
             sendMessage({type: 'RELATED_PAGES', pages, url});
         }
