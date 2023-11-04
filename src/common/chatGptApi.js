@@ -4,16 +4,8 @@
 // })
 // import fetch from 'node-fetch';
 
+import {DEFAULT_CHATGPT_ENDPOINT, DEFAULT_CHATGPT_KEY, DEFAULT_CHATGPT_MODEL, LOCAL_DEBUG} from './constants.js';
 
-// The api endpoint for chatgpt
-const DEFAULT_CHATGPT_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-// The auth/api key for chatgpt
-const DEFAULT_CHATGPT_KEY = null;
-// the model to use
-const DEFAULT_CHATGPT_MODEL = 'gpt-3.5-turbo';
-
-// whether to use local canned responses or actually hit the API
-const LOCAL_DEBUG = false;
 const EXAMPLE_TERMS_JSON =  {
     id: 'chatcmpl-8BkKIblY7Zi0nLjN7BeKEvbL1Bg55',
     object: 'chat.completion',
