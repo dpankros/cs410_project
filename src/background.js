@@ -1,13 +1,17 @@
+import { ChatGptAPI } from './common/chatGptApi.js';
+import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
+
 (async () => {
     try {
         let pages = [];
         let url = null;
 
-        function sendMessage(msg) {
+        async function sendMessage(msg) {
             try {
-                chrome.runtime.sendMessage(msg);
+                console.log('BACKGROUND - Sending', msg)
+                await chrome.runtime.sendMessage(msg);
             } catch (err) {
-                connsole.warn(err);
+                console.warn(err);
             }
         }
 
@@ -19,34 +23,39 @@
             url = _url;
 
             // TODO: Do some processing on the message
-            const { OpenAiKey: key, OpenAiOrg: org = null }  = chrome.storage.sync.get(["OpenAiKey", "OpenAiOrg"])
+
+            // Get ChatGPT Search Terms
+            const { [OPEN_AI_KEY]: key, [OPEN_AI_ORG]: org = null } = await chrome.storage.sync.get(null);
             let searchTerms;
             if (key) {
-                const chatGpt = ChatGptAPI(key, org);
+                const chatGpt = new ChatGptAPI(key, org);
                 searchTerms = await chatGpt.getSearchTermsForDocument(body);
             }
+            if (searchTerms) {
+                pages = searchTerms.split(' ');
+            }
             // send the message to the sidebar
-            sendMessage({type: 'RELATED_PAGES', pages, url});
+            await sendMessage({type: 'RELATED_PAGES', pages, url});
         }
 
-        function onRelatedPagesRequest(msg) {
+        async function onRelatedPagesRequest(msg) {
             console.log(`onRelatedPagesRequest:`, msg);
             console.log('sending related pages', pages)
-            sendMessage({type: 'RELATED_PAGES', pages, url});
+            await sendMessage({type: 'RELATED_PAGES', pages, url});
         }
 
 
-        function handleMessage(msg) {
+        async function handleMessage(msg) {
             console.log('Got message', msg);
             if (!msg) return;
 
             const {type} = msg;
             switch (type) {
                 case 'POST_LOADED':
-                    onPostChange(msg)
+                    await onPostChange(msg)
                     break;
                 case 'RELATED_PAGES_REQUEST':
-                    onRelatedPagesRequest(msg)
+                    await onRelatedPagesRequest(msg)
                     break;
                 default:
                     console.warn('Unhandled message:', msg);

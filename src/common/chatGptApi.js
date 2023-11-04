@@ -32,7 +32,7 @@ const EXAMPLE_TERMS_JSON =  {
     usage: {prompt_tokens: 132, completion_tokens: 10, total_tokens: 142}
 };
 
-class ChatGptAPI {
+export class ChatGptAPI {
     constructor(key = DEFAULT_CHATGPT_KEY, organization = null, model = DEFAULT_CHATGPT_MODEL, endpoint = DEFAULT_CHATGPT_ENDPOINT) {
         this.endpoint = endpoint;
         this.key = key;
@@ -62,7 +62,7 @@ class ChatGptAPI {
             messages: [
                 {
                     "role": "user",
-                    "content": `Suggest a search to find documents similar to following document.  Please provide just one query and no other text.\n\n${doc}`,
+                    "content": `Suggest a search to find documents similar to following document.  Provide just one query, no quotes, and no other text:\n\n${doc}`,
                 },
             ]
         }
@@ -75,8 +75,8 @@ class ChatGptAPI {
         }
 
         const { choices: [firstChoice, ...rest] = [] } = termsJson || {};
-        const {message: {content: result} = {}} = firstChoice || {};
-        return result;
+        const {message: {content: result = ''} = {}} = firstChoice || {};
+        return result.replace(/["]+/g, '');
     }
 
     async post(body, headers = {}) {
