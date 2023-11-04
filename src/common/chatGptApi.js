@@ -13,7 +13,7 @@ const DEFAULT_CHATGPT_KEY = null;
 const DEFAULT_CHATGPT_MODEL = 'gpt-3.5-turbo';
 
 // whether to use local canned responses or actually hit the API
-const LOCAL_DEBUG = true;
+const LOCAL_DEBUG = false;
 const EXAMPLE_TERMS_JSON =  {
     id: 'chatcmpl-8BkKIblY7Zi0nLjN7BeKEvbL1Bg55',
     object: 'chat.completion',
