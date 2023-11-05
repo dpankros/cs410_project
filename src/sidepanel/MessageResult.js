@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 import React, {Component} from 'react';
+import {Error} from "./Error";
 
 
 export class MessageResult extends Component {
@@ -7,6 +8,7 @@ export class MessageResult extends Component {
         super();
 
         this._pages = [];
+        this._error = null;
         this._listener = this.onRelatedPagesUpdate.bind(this)
     }
 
@@ -24,8 +26,9 @@ export class MessageResult extends Component {
         switch(type) {
             case 'RELATED_PAGES':
             // case 'POST_LOADED':
-                const {pages} = relatedPagesMsg;
+                const {pages, error} = relatedPagesMsg;
                 this._pages = pages;
+                this._error = error;
                 this.forceUpdate(); // forces an out of band update
                 break;
             default:
@@ -35,6 +38,9 @@ export class MessageResult extends Component {
 
     render() {
         console.log('RENDERING', this._pages)
+        if (this._error) {
+            return <Error error={this._error}/>
+        }
         if (!this._pages || this._pages.length === 0) {
             return <strong>Nothing to Show</strong>;
         } else {

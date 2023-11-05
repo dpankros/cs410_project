@@ -10,7 +10,7 @@ function sendMessage(message) {
     try {
         chrome.runtime.sendMessage(message);
     }catch(err) {
-        console.warn(err);
+        console.log(err);
     }
 }
 
@@ -28,3 +28,16 @@ document.body.addEventListener("click", function() {
     }
     oldUrl = newUrl;
 });
+
+(async () => {
+    //
+    // We have to wait for the post to load async.  The easiest waay to do this is polling for it.
+    //
+    let recheckTimer = setInterval(() => {
+        const body = this.document.getElementsByClassName(POST_BODY_CSS_CLASS);
+        if (body && body.length > 0) {
+            clearInterval(recheckTimer);
+            onLoadPost();
+        }
+    }, RETRY_INTERVAL_MS);
+})();

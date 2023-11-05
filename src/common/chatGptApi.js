@@ -65,8 +65,13 @@ export class ChatGptAPI {
         } else {
             termsJson = EXAMPLE_TERMS_JSON;
         }
-
-        const { choices: [firstChoice, ...rest] = [] } = termsJson || {};
+        console.log(termsJson)
+        const { error = null, choices: [firstChoice, ...rest] = [] } = termsJson || {};
+        if (error) {
+            const { code, message } = error;
+            console.log(error)
+            throw new Error(`${message} (${code})`);
+        }
         const {message: {content: result = ''} = {}} = firstChoice || {};
         return result.replace(/["]+/g, '');
     }

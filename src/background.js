@@ -11,7 +11,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
                 console.log('BACKGROUND - Sending', msg)
                 await chrome.runtime.sendMessage(msg);
             } catch (err) {
-                console.warn(err);
+                console.log(err);
             }
         }
 
@@ -27,15 +27,20 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
             // Get ChatGPT Search Terms
             const { [OPEN_AI_KEY]: key, [OPEN_AI_ORG]: org = null } = await chrome.storage.sync.get(null);
             let searchTerms;
+            let error = null;
             if (key) {
                 const chatGpt = new ChatGptAPI(key, org);
-                searchTerms = await chatGpt.getSearchTermsForDocument(body);
+                try {
+                    searchTerms = await chatGpt.getSearchTermsForDocument(body);
+                } catch (err) {
+                    error = err.message;
+                }
             }
             if (searchTerms) {
                 pages = searchTerms.split(' ');
             }
             // send the message to the sidebar
-            await sendMessage({type: 'RELATED_PAGES', pages, url});
+            await sendMessage({type: 'RELATED_PAGES', pages, url, error });
         }
 
         async function onRelatedPagesRequest(msg) {
@@ -72,7 +77,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
         console.log('Background listener loaded')
     } catch (err) {
         // catfch all top-level errors
-        console.warn(err);
+        console.log(err);
     }
 })();
 

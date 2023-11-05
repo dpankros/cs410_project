@@ -1,6 +1,5 @@
-import logo from '../logo.svg';
 import './App.css';
-import {SettingContainer} from "../menu/SettingsContainer";
+import {SettingContainer} from "./SettingsContainer";
 /* eslint-disable no-undef */
 
 function App() {
