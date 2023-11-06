@@ -1,6 +1,5 @@
 import './App.css';
 import {SettingContainer} from "./SettingsContainer";
-/* eslint-disable no-undef */
 
 function App() {
   return (
