@@ -3,8 +3,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "../common/constants.js";
 import {Settings} from "./Settings.js";
 import { useChromeSettings } from "./useChromeSettings.js";
 
-export function SettingContainer(props) {
-    const { storage } = props || {};
+export function SettingContainer({ storage }) {
     const [openAiKey, setOpenAiKey] = useChromeSettings(storage, OPEN_AI_KEY)
     const [openAiOrg, setOpenAiOrg] = useChromeSettings(storage, OPEN_AI_ORG)
 

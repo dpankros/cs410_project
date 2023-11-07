@@ -4,12 +4,12 @@ const NO_DEPS = [];
 const BLANK = '';
 
 export const useChromeSettings = (storage, settingName, defaultValue = BLANK, deps = NO_DEPS) => {
-    const [getStateValue, setStateValue] = useState(defaultValue);
+    const [stateValue, setStateValue] = useState(defaultValue);
     const [hasFetched, setFetched] = useState(false);
 
     const setValue = useCallback(async (value) => {
-        setStateValue(value);
         await storage.set({ [settingName]: value });
+        setStateValue(value);
 
         // purposely not awaited.  This is just a verification step
         storage.get(settingName).then(({[settingName]: v} = {}) => {
@@ -37,6 +37,6 @@ export const useChromeSettings = (storage, settingName, defaultValue = BLANK, de
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // blank so it runs only on the inital render
 
-    return [getStateValue, setValue];
+    return [stateValue, setValue];
 };
 
