@@ -2,6 +2,7 @@ import { ChatGptAPI } from './common/chatGptApi.js';
 import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
 
 const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post id, $3 is the category
+import { search } from './common/search.js';
 (async () => {
 
     chrome.runtime.onStartup.addListener(e => console.log('background: On Startup'));
@@ -33,13 +34,22 @@ const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post i
                 chrome.runtime.onMessage.addListener(handleMessage);
             }
         }
-
+        async function fetchSearch() {
+            console.log("I am fetching");
+                const searchInstance = new search();
+                try {
+                    searchTerms = await searchInstance.getSearchTerms('hello');
+                } catch (err) {
+                    console.log(err);
+                }
+        }
         async function onPostChange(m) {
             const {type, body, title: fullTitle, url: _url} = m;
             sendMessage({type: 'POST_CHANGE_START', url }).catch(err => console.error(err));
             const title = fullTitle.replace(TITLE_REGEX, "$1");
 
             console.log(`onPostChange:`, m);
+            fetchSearch();
             pages = Array.isArray(body) ? body : [body, body, body];
             url = _url;
 
