@@ -16,9 +16,20 @@ function sendMessage(message) {
 
 function onLoadPost() {
     console.log('onLoadPost')
-    const body = this.document.getElementsByClassName(POST_BODY_CSS_CLASS);
-    const title = this.document.getElementsByClassName(POST_TITLE_CCS_CLASS);
-    sendMessage({type: 'POST_LOADED', url: document.URL, title: title[0].textContent, body: body[0].textContent});
+    const body = this.document.getElementsByClassName(POST_BODY_CSS_CLASS)[0].textContent;
+    const titleRaw = this.document.getElementsByClassName(POST_TITLE_CCS_CLASS);
+    const titleSplit = titleRaw[0].textContent.split("#");
+    const title = titleSplit[0];
+    const categorySplit = titleSplit[1];
+    let substringIndex = 0;
+    for (var index in categorySplit) {
+        if (isNaN(parseInt(categorySplit.charAt(index)))) {
+            break;
+        } 
+        substringIndex++;
+    }
+    const category = titleSplit[1].substring(substringIndex);
+    sendMessage({type: 'POST_LOADED', url: document.URL, title: title, category: category, body: body});
 }
 
 document.body.addEventListener("click", function() {
