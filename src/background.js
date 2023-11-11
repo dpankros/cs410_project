@@ -34,11 +34,11 @@ import { search } from './common/search.js';
                 chrome.runtime.onMessage.addListener(handleMessage);
             }
         }
-        async function fetchSearch() {
-            console.log("I am fetching");
+        async function fetchSearch(searchTerm) {
+            console.log("Executing search");
                 const searchInstance = new search();
                 try {
-                    searchTerms = await searchInstance.getSearchTerms('hello');
+                    searchTerms = await searchInstance.getSearchTerms(searchTerm);
                 } catch (err) {
                     console.log(err);
                 }
@@ -49,7 +49,6 @@ import { search } from './common/search.js';
             const title = fullTitle.replace(TITLE_REGEX, "$1");
 
             console.log(`onPostChange:`, m);
-            fetchSearch();
             pages = Array.isArray(body) ? body : [body, body, body];
             url = _url;
 
@@ -74,6 +73,9 @@ import { search } from './common/search.js';
 
             if (searchTerms) {
                 pages = searchTerms.split(' ');
+            }
+            if (pages.length != 0){
+                fetchSearch(pages[0]);
             }
             // send the message to the sidebar
             await sendMessage({type: 'RELATED_PAGES', pages, url, error });
