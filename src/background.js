@@ -3,6 +3,23 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
 
 const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post id, $3 is the category
 (async () => {
+
+    chrome.runtime.onStartup.addListener(e => console.log('background: On Startup'));
+    chrome.runtime.onSuspend.addListener(e => console.log('background: On Suspend'));
+    chrome.webRequest.onCompleted.addListener((...args) => {console.log('background: On Completed', args)}, { urls: ['https://campuswire.com/*']});
+
+    // this gets hit whenever the extension is updated
+    chrome.runtime.onInstalled.addListener(async (details) => {
+        for (const cs of chrome.runtime.getManifest().content_scripts) {
+            for (const tab of await chrome.tabs.query({url: cs.matches})) {
+                chrome.scripting.executeScript({
+                    target: {tabId: tab.id},
+                    files: cs.js,
+                });
+            }
+        }
+    });
+
     try {
         let pages = [];
         let url = null;
@@ -13,6 +30,7 @@ const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post i
                 await chrome.runtime.sendMessage(msg);
             } catch (err) {
                 console.log(err);
+                chrome.runtime.onMessage.addListener(handleMessage);
             }
         }
 
@@ -78,7 +96,6 @@ const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post i
 
         // eslint-disable-next-line no-undef
         chrome.runtime.onMessage.addListener(handleMessage);
-        console.log(chrome)
         chrome.webRequest.onCompleted.addListener((...args) => {
             console.log("webRequest.onComplete", args)
             sendMessage({ type: 'PAGE_INFO_REQUEST' })

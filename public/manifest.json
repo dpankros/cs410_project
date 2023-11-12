@@ -20,6 +20,9 @@
     "webRequest",
     "tabs"
   ],
+  "host_permissions": [
+    "https://*.campuswire.com/*feed*"
+  ],
   "content_scripts": [
     {
       "matches": ["https://*.campuswire.com/*feed*"],
