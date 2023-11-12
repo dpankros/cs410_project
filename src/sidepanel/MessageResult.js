@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import React, {Component} from 'react';
 import {Error} from "./Error";
-
+import {Loading} from "./Loading";
 
 export class MessageResult extends Component {
     constructor(props) {
@@ -24,11 +24,20 @@ export class MessageResult extends Component {
     onRelatedPagesUpdate(relatedPagesMsg) {
         const {type} = relatedPagesMsg;
         switch(type) {
+            case 'POST_CHANGE_START':
+                this._loading = true;
+                this.forceUpdate(); // forces an out of band update
+                break;
+            case 'POST_CHANGE_END':
+                this._loading = false;
+                this.forceUpdate(); // forces an out of band update
+                break;
             case 'RELATED_PAGES':
             // case 'POST_LOADED':
                 const {pages, error} = relatedPagesMsg;
                 this._pages = pages;
                 this._error = error;
+                this._loading = false;
                 this.forceUpdate(); // forces an out of band update
                 break;
             default:
@@ -40,6 +49,9 @@ export class MessageResult extends Component {
         console.log('RENDERING', this._pages)
         if (this._error) {
             return <Error error={this._error}/>
+        }
+        if (this._loading) {
+            return <Loading/>;
         }
         if (!this._pages || this._pages.length === 0) {
             return <strong>Nothing to Show</strong>;

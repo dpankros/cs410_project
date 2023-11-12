@@ -1,6 +1,7 @@
 import { ChatGptAPI } from './common/chatGptApi.js';
 import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
 
+const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post id, $3 is the category
 (async () => {
     try {
         let pages = [];
@@ -16,7 +17,9 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
         }
 
         async function onPostChange(m) {
-            const {type, body, title, url: _url} = m;
+            const {type, body, title: fullTitle, url: _url} = m;
+            sendMessage({type: 'POST_CHANGE_START', url }).catch(err => console.error(err));
+            const title = fullTitle.replace(TITLE_REGEX, "$1");
 
             console.log(`onPostChange:`, m);
             pages = Array.isArray(body) ? body : [body, body, body];
@@ -24,7 +27,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
 
             // Get ChatGPT Search Terms
             const { [OPEN_AI_KEY]: key, [OPEN_AI_ORG]: org = null } = await chrome.storage.sync.get(null);
-            let searchTerms;
+            let searchTerms = null;
             let error = null;
             if (key) {
                 const chatGpt = new ChatGptAPI(key, org);
@@ -32,8 +35,10 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
                     searchTerms = await chatGpt.getSearchTermsForDocument(body, title);
                 } catch (err) {
                     error = err.message;
+                    searchTerms = null;
                 }
-            } else {
+            }
+            if (!searchTerms) { // use the title if we cannot use ChatGPT (error OR there was no key)
                 searchTerms = title;
             }
 
@@ -44,6 +49,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
             }
             // send the message to the sidebar
             await sendMessage({type: 'RELATED_PAGES', pages, url, error });
+            sendMessage({type: 'POST_CHANGE_END', url }).catch(err => console.error(err));;
         }
 
         async function onRelatedPagesRequest(msg) {
