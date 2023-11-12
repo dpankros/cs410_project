@@ -4,7 +4,13 @@
 // })
 // import fetch from 'node-fetch';
 
-import {DEFAULT_CHATGPT_ENDPOINT, DEFAULT_CHATGPT_KEY, DEFAULT_CHATGPT_MODEL, LOCAL_DEBUG} from './constants.js';
+import {
+    CHATGPT_DOCUMENT_PROMPT,
+    DEFAULT_CHATGPT_ENDPOINT,
+    DEFAULT_CHATGPT_KEY,
+    DEFAULT_CHATGPT_MODEL,
+    LOCAL_DEBUG
+} from './constants.js';
 
 const EXAMPLE_TERMS_JSON =  {
     id: 'chatcmpl-8BkKIblY7Zi0nLjN7BeKEvbL1Bg55',
@@ -46,26 +52,23 @@ export class ChatGptAPI {
         this.model = 'gpt-3.5-turbo';
     }
 
-    async getSearchTermsForDocument(doc = null) {
-        if (doc === null) throw Error("Missing required argument: doc");
+    async getSearchTermsForDocument(body = null, title = '') {
+        if (body === null) throw Error("Missing required argument: doc");
 
-        const body = {
+        const content = CHATGPT_DOCUMENT_PROMPT.replace('%BODY%', body).replace('%TITLE%', title)
+        console.log("GPT Query:", content);
+        const requestBody = {
             model: this.model,
-            messages: [
-                {
-                    "role": "user",
-                    "content": `Suggest a search to find documents similar to following document.  Provide just one query, no quotes, and no other text:\n\n${doc}`,
-                },
-            ]
-        }
+            messages: [{ 'role': 'user', content }],
+        }; // ?
         let termsJson = null;
         if (!LOCAL_DEBUG) {
-            const response = await this.post(body);
+            const response = await this.post(requestBody);
             termsJson = await response.json();
         } else {
             termsJson = EXAMPLE_TERMS_JSON;
         }
-        console.log(termsJson)
+        console.log('Suggested Terms:', termsJson)
         const { error = null, choices: [firstChoice, ...rest] = [] } = termsJson || {};
         if (error) {
             const { code, message } = error;

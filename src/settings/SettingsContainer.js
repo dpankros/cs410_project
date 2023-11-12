@@ -7,5 +7,5 @@ export function SettingContainer({ storage }) {
     const [openAiKey, setOpenAiKey] = useChromeSettings(storage, OPEN_AI_KEY)
     const [openAiOrg, setOpenAiOrg] = useChromeSettings(storage, OPEN_AI_ORG)
 
-    return <Settings openAiKey={openAiKey} setOpenAiKey={setOpenAiKey} openAiOrg={openAiOrg} setOpenAiOrg={setOpenAiOrg()} />
+    return <Settings openAiKey={openAiKey} setOpenAiKey={setOpenAiKey} openAiOrg={openAiOrg} setOpenAiOrg={setOpenAiOrg} />
 }

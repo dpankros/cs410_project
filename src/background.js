@@ -29,7 +29,7 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
             if (key) {
                 const chatGpt = new ChatGptAPI(key, org);
                 try {
-                    searchTerms = await chatGpt.getSearchTermsForDocument(body);
+                    searchTerms = await chatGpt.getSearchTermsForDocument(body, title);
                 } catch (err) {
                     error = err.message;
                 }
