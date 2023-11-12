@@ -16,13 +16,11 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
         }
 
         async function onPostChange(m) {
-            const {type, body, url: _url} = m;
+            const {type, body, title, url: _url} = m;
 
             console.log(`onPostChange:`, m);
             pages = Array.isArray(body) ? body : [body, body, body];
             url = _url;
-
-            // TODO: Do some processing on the message
 
             // Get ChatGPT Search Terms
             const { [OPEN_AI_KEY]: key, [OPEN_AI_ORG]: org = null } = await chrome.storage.sync.get(null);
@@ -35,7 +33,12 @@ import {OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
                 } catch (err) {
                     error = err.message;
                 }
+            } else {
+                searchTerms = title;
             }
+
+            // TODO: Do some processing on the message
+
             if (searchTerms) {
                 pages = searchTerms.split(' ');
             }
