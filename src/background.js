@@ -24,6 +24,7 @@ import { search } from './common/search.js';
     try {
         let pages = [];
         let url = null;
+        let bearerToken = null;
 
         async function sendMessage(msg) {
             try {
@@ -34,14 +35,29 @@ import { search } from './common/search.js';
                 chrome.runtime.onMessage.addListener(handleMessage);
             }
         }
-        async function fetchSearch(searchTerm) {
+        async function fetchSearch(searchTerms) {
             console.log("Executing search");
                 const searchInstance = new search();
                 try {
-                    searchTerms = await searchInstance.getSearchTerms(searchTerm);
+                    searchTerms = await searchInstance.getSearchTerms(bearerToken,searchTerms);
                 } catch (err) {
                     console.log(err);
                 }
+        }
+        async function getToken() {
+            try {
+              const key = "token";
+              const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+              const [result] = await chrome.scripting.executeScript({
+                target: { tabId: currentTab.id },
+                function: (key) => localStorage.getItem(key),
+                args: [key],
+              });
+              const tokenValue = result.result.replace(/"/g, '');
+              return tokenValue;
+            } catch (err) {
+              console.error(err);
+            }
         }
         async function onPostChange(m) {
             const {type, body, title: fullTitle, url: _url} = m;
@@ -72,10 +88,14 @@ import { search } from './common/search.js';
             // TODO: Do some processing on the message
 
             if (searchTerms) {
-                pages = searchTerms.split(' ');
+                pages = searchTerms.split(' ').slice(0, 5).join('&');
+            }
+            if (!bearerToken){
+                console.log("Getting token");
+                bearerToken = await getToken();
             }
             if (pages.length != 0){
-                fetchSearch(pages[0]);
+                fetchSearch(pages);
             }
             // send the message to the sidebar
             await sendMessage({type: 'RELATED_PAGES', pages, url, error });
