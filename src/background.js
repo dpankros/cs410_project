@@ -23,6 +23,7 @@ import { search } from './common/search.js';
 
     try {
         let pages = [];
+        let pick5 = [];
         let url = null;
         let bearerToken = null;
 
@@ -88,14 +89,15 @@ import { search } from './common/search.js';
             // TODO: Do some processing on the message
 
             if (searchTerms) {
-                pages = searchTerms.split(' ').slice(0, 5).join('&');
+                pages = searchTerms.split(' ');
+                pick5 = pages.slice(0, 5).join('&');
             }
             if (!bearerToken){
                 console.log("Getting token");
                 bearerToken = await getToken();
             }
             if (pages.length != 0){
-                fetchSearch(pages);
+                fetchSearch(pick5);
             }
             // send the message to the sidebar
             await sendMessage({type: 'RELATED_PAGES', pages, url, error });

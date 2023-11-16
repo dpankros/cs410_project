@@ -29,6 +29,19 @@ export class search {
             throw new Error("No Result");
         }
         console.log(body);
+        const jsonData = JSON.parse(body);
+        // Extracting desired information for each post
+        const simplifiedPosts = jsonData.posts.map(post => ({
+            title: post.title,
+            number: post.number,
+            body: post.body,
+            id: post.id,
+            group: post.group
+        }));
+
+        // Displaying the simplified posts
+        console.log(simplifiedPosts);
+
         return body;
     }
 }
