@@ -22,7 +22,7 @@
     "tabs"
   ],
   "host_permissions": [
-    "https://*.campuswire.com/*feed*"
+    "*://*.campuswire.com/*"
   ],
   "content_scripts": [
     {

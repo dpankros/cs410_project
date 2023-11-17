@@ -2,6 +2,7 @@
 import React, {Component} from 'react';
 import {Error} from "./Error";
 import {Loading} from "./Loading";
+import {NoResults} from "./NoResults";
 
 export class MessageResult extends Component {
     constructor(props) {
@@ -46,7 +47,7 @@ export class MessageResult extends Component {
     }
 
     render() {
-        console.log('RENDERING', this._pages)
+        console.log('RENDERING', this._pages, this._error, this._loading)
         if (this._error) {
             return <Error error={this._error}/>
         }
@@ -54,9 +55,9 @@ export class MessageResult extends Component {
             return <Loading/>;
         }
         if (!this._pages || this._pages.length === 0) {
-            return <strong>Nothing to Show</strong>;
+            return <NoResults/>;
         } else {
-            return <ul>{this._pages.map((page, i) => (<li key={`p-${i}`}>{page}</li>))}</ul>;
+            return <ul>{this._pages.map((page, i) => (<li key={`p-${i}`}>{page && page.title}</li>))}</ul>;
         }
 
     }
