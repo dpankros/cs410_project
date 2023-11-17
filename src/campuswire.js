@@ -19,7 +19,14 @@ async function onLoadPost() {
     console.log('onLoadPost')
     const body = this.document.getElementsByClassName(POST_BODY_CSS_CLASS);
     const title = this.document.getElementsByClassName(POST_TITLE_CCS_CLASS);
-    await sendMessage({type: 'POST_LOADED', url: document.URL, title: title[0].textContent, body: body[0].textContent});
+    let token = (await localStorage.getItem('token')) || null;
+    await sendMessage({
+        type: 'POST_LOADED',
+        url: document.URL,
+        title: title[0].textContent,
+        body: body[0].textContent,
+        token: token ? token.replaceAll('"', '') : null,
+    });
 }
 
 document.body.addEventListener("click", function() {
@@ -29,6 +36,8 @@ document.body.addEventListener("click", function() {
     }
     oldUrl = newUrl;
 });
+
+
 
 (async () => {
     //
@@ -47,5 +56,5 @@ document.body.addEventListener("click", function() {
             clearInterval(recheckTimer);
         }
     }, RETRY_INTERVAL_MS);
-    // chrome.webRequest.onResponseStarted.addListener(e => console.log('campuswire: On ResponseStarted'));
+
 })();
