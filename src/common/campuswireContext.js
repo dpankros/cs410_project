@@ -7,6 +7,8 @@ const ALLOWED_PROP_NAMES = [
     'pages',
     'error',
     'searchTerms',
+    'usedChatGpt',
+    'postNumber',
 ]
 export class CampuswireContext {
     constructor(json = {}) {

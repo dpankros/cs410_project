@@ -6,7 +6,7 @@ import {CampuswireContext} from "./common/CampuswireContext.js";
 
 const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post id, $3 is the category
 const GROUP_ID_REGEX = /^.*\/group\/([^\/]+)\/.*/gi;
-
+const POST_NUMBER_REGEX = /^.+\/feed\/(\d+)\/?.*/gi;
 
 const contextManager = new ContextManager(CampuswireContext);
 
@@ -51,14 +51,18 @@ async function onPostChange(ctx, m) {
     const {type, body, title: fullTitle, url, token} = m;
     sendMessage({type: 'POST_CHANGE_START', url }).catch(err => console.error(err));
     const title = fullTitle.replace(TITLE_REGEX, "$1");
+    const postNumber = url.replace(POST_NUMBER_REGEX, "$1");
     console.log(`onPostChange:`, m, ctx);
 
-    ctx.setValues({url, token});
+    ctx.setValues({url, token, postNumber});
 
     let {searchTerms, error = null} = await getChatGptSearchTerms(body, title);
     ctx.error = error;
     if (!searchTerms) { // use the title if we cannot use ChatGPT (error OR there was no key)
         searchTerms = title;
+        ctx.usedChatGpt = false;
+    } else {
+        ctx.usedChatGpt = true;
     }
 
     if (searchTerms) {
@@ -68,6 +72,7 @@ async function onPostChange(ctx, m) {
             console.log("ERROR: Pages is NOT an array");
             ctx.pages  = [pages];
         }
+        ctx.pages = ctx.pages.filter(p => p.postNumber != postNumber);
         contextManager.setCurrentContext(ctx);
         await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error});
     } else {
@@ -113,8 +118,8 @@ async function sendMessage(msg) {
 
 chrome.runtime.onStartup.addListener(e => console.log('background: On Startup'));
 chrome.runtime.onSuspend.addListener(e => console.log('background: On Suspend'));
-chrome.webRequest.onBeforeRequest.addListener(async ({ url }) => {
-    const ctx = await contextManager.getCurrentContext();
+chrome.webRequest.onBeforeRequest.addListener(async ({ url, tabId }) => {
+    const ctx = await contextManager.getContext(tabId);
     const newGroupId = extractGroupIdFromUrl(url);
     if (newGroupId !== null && newGroupId !== ctx.groupId) {
         sendMessage({ type: 'GROUP_CHANGED', oldGroupId: ctx.groupId, newGroupId });
@@ -125,13 +130,6 @@ chrome.webRequest.onBeforeRequest.addListener(async ({ url }) => {
     urls: ['https://*.campuswire.com/*'],
     // types: ['main_frame', 'sub_frame', 'xmlhttprequest', 'script', 'other'],
 });
-// chrome.webRequest.onCompleted.addListener((...args) => {
-//     console.log("webRequest.onComplete", args)
-//     sendMessage({type: 'PAGE_INFO_REQUEST'})
-// }, {
-//     urls: ['https://*.campuswire.com/*'],
-//     // types: ['main_frame', 'sub_frame', 'xmlhttprequest', 'script', 'other'],
-// });
 
 // this gets hit whenever the extension is updated
 chrome.runtime.onInstalled.addListener(async (details) => {

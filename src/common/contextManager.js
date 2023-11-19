@@ -27,7 +27,7 @@ export class ContextManager {
 
     async getCurrentContext() {
         const tab = await currentTab();
-        return this.getContext(tab.id);
+        return this.getContext(tab ? tab.id : null);
     }
 
     getContext(id) {
@@ -39,6 +39,6 @@ export class ContextManager {
     }
 
     hasContext(id) {
-        return !!this._ctx[id];
+        return id ? !!this._ctx[id] : false;
     }
 }

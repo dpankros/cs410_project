@@ -36,17 +36,13 @@ export class CampusWireApi {
         const jsonData = await fetchResult.json();
         const { posts = [] } = jsonData;
         // Extracting desired information for each post
-        const simplifiedPosts = posts.map(post => ({
-            title: post.title,
-            number: post.number,
-            body: post.body,
-            id: post.id,
+        return posts.map(post => ({
+            title: post.title.replaceAll('==', ''),
+            postNumber: post.number,
+            body: post.body.replaceAll('==', ''),
+            postId: post.id,
             groupId: post.group,
             publishedAt: new Date(post.publishedAt),
         }));
-
-        // Displaying the simplified posts
-        console.log(simplifiedPosts);
-        return simplifiedPosts
     }
 }
