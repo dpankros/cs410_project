@@ -13,7 +13,7 @@ const contextManager = new ContextManager(CampuswireContext);
 async function searchCampuswire(bearerToken, searchTerms, groupId) {
     console.log(`Has token: ${!!bearerToken} Search: ${searchTerms} GroupId: ${groupId}`)
     if (!searchTerms || !groupId || !bearerToken) {
-        return;
+        return [];
     }
     searchTerms = searchTerms.split(' ').slice(0, MAX_SEARCH_TERMS).join('&');
     const campuswire = new CampusWireApi(bearerToken);
@@ -74,16 +74,18 @@ async function onPostChange(ctx, m) {
         }
         ctx.pages = ctx.pages.filter(p => p.postNumber != postNumber);
         contextManager.setCurrentContext(ctx);
-        await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error});
+        await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error, usedChatGpt: ctx.usedChatGpt });
     } else {
         console.log('There were no search terms.')
+        ctx.searchTerms = null;
+        ctx.pages = [];
     }
     sendMessage({type: 'POST_CHANGE_END', url}).catch(err => console.error(err));
 }
 
 async function onRelatedPagesRequest(ctx, msg) {
     console.log(`onRelatedPagesRequest:`, msg, ctx);
-    await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url });
+    await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error, usedChatGpt: ctx.usedChatGpt  });
 }
 
 async function handleMessage(msg) {

@@ -18,6 +18,8 @@ export class ContextManager {
 
     async setCurrentContext(data) {
         const tab = await currentTab();
+        if (!tab) return; // we don't know the id
+
         return this.setContext(tab.id, data);
     }
 
