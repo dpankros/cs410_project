@@ -1,23 +1,20 @@
 import {ChatGptAPI} from './common/chatGptApi.js';
 import {MAX_SEARCH_TERMS, OPEN_AI_KEY, OPEN_AI_ORG} from "./common/constants.js";
 import {CampusWireApi} from './common/campusWireApi.js';
+import {ContextManager} from "./common/contextManager.js";
+import {CampuswireContext} from "./common/CampuswireContext.js";
 
 const TITLE_REGEX = /([^#]*)#(\d+)(.*)/gim; // $1 is the title, $2 is the post id, $3 is the category
 const GROUP_ID_REGEX = /^.*\/group\/([^\/]+)\/.*/gi;
 
 
-let groupId = null;
-let pages = [];
-let pick5 = [];
-let url = null;
-let bearerToken = null;
+const contextManager = new ContextManager(CampuswireContext);
 
 async function searchCampuswire(bearerToken, searchTerms, groupId) {
     console.log(`Has token: ${!!bearerToken} Search: ${searchTerms} GroupId: ${groupId}`)
     if (!searchTerms || !groupId || !bearerToken) {
         return;
     }
-    console.log("Executing CampusWire Search");
     searchTerms = searchTerms.split(' ').slice(0, MAX_SEARCH_TERMS).join('&');
     const campuswire = new CampusWireApi(bearerToken);
     try {
@@ -27,20 +24,6 @@ async function searchCampuswire(bearerToken, searchTerms, groupId) {
     }
 }
 
-async function getToken() {
-    try {
-        const key = "token";
-        const [currentTab] = await chrome.tabs.query({active: true, currentWindow: true});
-        // const [result] = await chrome.scripting.executeScript({
-        //     target: {tabId: currentTab.id},
-        //     function: (key) => localStorage.getItem(key),
-        //     args: [key],
-        // });
-        // return result.result.replace(/"/g, '');
-    } catch (err) {
-        console.error(err);
-    }
-}
 function extractGroupIdFromUrl(url) {
     const result = GROUP_ID_REGEX.exec(url);
     return result ? result[1] : null;
@@ -64,62 +47,57 @@ async function getChatGptSearchTerms(body, title) {
 }
 
 
-async function onPostChange(m) {
-    const {type, body, title: fullTitle, url: _url, token} = m;
-    sendMessage({type: 'POST_CHANGE_START', url}).catch(err => console.error(err));
+async function onPostChange(ctx, m) {
+    const {type, body, title: fullTitle, url, token} = m;
+    sendMessage({type: 'POST_CHANGE_START', url }).catch(err => console.error(err));
     const title = fullTitle.replace(TITLE_REGEX, "$1");
+    console.log(`onPostChange:`, m, ctx);
 
-    console.log(`onPostChange:`, m);
-
-    url = _url;
-    bearerToken = token;
+    ctx.setValues({url, token});
 
     let {searchTerms, error = null} = await getChatGptSearchTerms(body, title);
+    ctx.error = error;
     if (!searchTerms) { // use the title if we cannot use ChatGPT (error OR there was no key)
         searchTerms = title;
     }
 
     if (searchTerms) {
-        console.log(`Searching for ${searchTerms}`)
-        // allow these to run in parallel
-        pages = (await searchCampuswire(bearerToken, searchTerms, groupId)) || [];
-
-        console.log("PAGES:", pages);
-        console.log("token:", bearerToken);
-        // send the message to the sidebar
-        if (!Array.isArray(pages)) {
+        ctx.searchTerms = searchTerms;
+        ctx.pages  = (await searchCampuswire(ctx.token, ctx.searchTerms, ctx.groupId)) || [];
+        if (!Array.isArray(ctx.pages)) {
             console.log("ERROR: Pages is NOT an array");
-            pages = [pages];
+            ctx.pages  = [pages];
         }
-        await sendMessage({type: 'RELATED_PAGES', pages, url, error});
+        contextManager.setCurrentContext(ctx);
+        await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error});
     } else {
         console.log('There were no search terms.')
     }
     sendMessage({type: 'POST_CHANGE_END', url}).catch(err => console.error(err));
 }
 
-async function onRelatedPagesRequest(msg) {
-    console.log(`onRelatedPagesRequest:`, msg);
-    console.log('sending related pages', pages)
-    await sendMessage({type: 'RELATED_PAGES', pages, url});
+async function onRelatedPagesRequest(ctx, msg) {
+    console.log(`onRelatedPagesRequest:`, msg, ctx);
+    await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url });
 }
 
 async function handleMessage(msg) {
-    console.log('Got message', msg);
     if (!msg) return;
+    const ctx = await contextManager.getCurrentContext();
 
     const {type} = msg;
     switch (type) {
         case 'POST_LOADED':
-            await onPostChange(msg)
+            await onPostChange(ctx, msg)
             break;
         case 'RELATED_PAGES_REQUEST':
-            await onRelatedPagesRequest(msg)
+            await onRelatedPagesRequest(ctx,msg)
             break;
         default:
             console.warn('Unhandled message:', msg);
     }
 }
+
 
 async function sendMessage(msg) {
     try {
@@ -135,11 +113,13 @@ async function sendMessage(msg) {
 
 chrome.runtime.onStartup.addListener(e => console.log('background: On Startup'));
 chrome.runtime.onSuspend.addListener(e => console.log('background: On Suspend'));
-chrome.webRequest.onBeforeRequest.addListener(({ url }) => {
+chrome.webRequest.onBeforeRequest.addListener(async ({ url }) => {
+    const ctx = await contextManager.getCurrentContext();
     const newGroupId = extractGroupIdFromUrl(url);
-    if (newGroupId !== null && newGroupId !== groupId) {
-        sendMessage({ type: 'GROUP_CHANGED', oldGroupId: groupId, newGroupId });
-        groupId = newGroupId;
+    if (newGroupId !== null && newGroupId !== ctx.groupId) {
+        sendMessage({ type: 'GROUP_CHANGED', oldGroupId: ctx.groupId, newGroupId });
+        ctx.groupId = newGroupId;
+        await contextManager.setCurrentContext(ctx);
     }
 }, {
     urls: ['https://*.campuswire.com/*'],
@@ -164,6 +144,11 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         }
     }
 });
+
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+    const {pages, url, error} = contextManager.getContext(tabId).json;
+    await sendMessage({type: 'RELATED_PAGES', pages, url, error, tabId});
+})
 chrome.runtime.onMessage.addListener(handleMessage);
 
 console.log('Background listener loaded')

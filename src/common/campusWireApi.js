@@ -17,8 +17,6 @@ export class CampusWireApi {
         let p = new URLSearchParams({query});
         const path = `/v1/group/${groupId}/search?${p.toString()}`;
         const url = new URL(path, `${this.proto}://${this.hostname}`);
-
-        console.log('Querying URL', url.toString());
         const headers = new Headers();
 
         headers.append('Authorization', this.authorization);
@@ -37,7 +35,6 @@ export class CampusWireApi {
 
         const jsonData = await fetchResult.json();
         const { posts = [] } = jsonData;
-        console.log('POSTS', posts, jsonData)
         // Extracting desired information for each post
         const simplifiedPosts = posts.map(post => ({
             title: post.title,
