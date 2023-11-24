@@ -36,13 +36,15 @@ export class CampusWireApi {
         const jsonData = await fetchResult.json();
         const { posts = [] } = jsonData;
         // Extracting desired information for each post
-        return posts.map(post => ({
+        return posts.map((post,index) => ({
+            id: index,
             title: post.title.replaceAll('==', ''),
             postNumber: post.number,
             body: post.body.replaceAll('==', ''),
             postId: post.id,
             groupId: post.group,
             publishedAt: new Date(post.publishedAt),
+            url:`https://campuswire.com/c/G${(post.group.split('-'))[0].toUpperCase()}/feed/${post.number}`,
         }));
     }
 }

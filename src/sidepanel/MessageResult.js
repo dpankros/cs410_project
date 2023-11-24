@@ -3,7 +3,7 @@ import React, {Component} from 'react';
 import {Error} from "./Error";
 import {Loading} from "./Loading";
 import {NoResults} from "./NoResults";
-
+import {Data} from "./Data";
 export class MessageResult extends Component {
     constructor(props) {
         super();
@@ -57,7 +57,7 @@ export class MessageResult extends Component {
         if (!this._pages || this._pages.length === 0) {
             return <NoResults/>;
         } else {
-            return <ul>{this._pages.map((page, i) => (<li key={`p-${i}`}>{page && page.title}</li>))}</ul>;
+            return <Data data={this._pages}/>
         }
 
     }
