@@ -72,7 +72,7 @@ export function Data(props) {
             </p>
             <p>
               <br /> 
-                <a href={item.url} target="_blank">
+                <a href={item.url} target="_blank" rel="noopener noreferrer">
                   {item.url}
                 </a>
             </p>
