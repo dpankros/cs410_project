@@ -73,9 +73,7 @@ GitHub Actions are used to automatically build the extension.
 
 ### From an Automated Release
 
-1. Click on "tags" under the Releases heading on the right column of the homepage.
-2. Click on the release you want, or "latest"
-3. Download the release.zip file, listed under the Assets heading.
+1. Click on a version under the Releases heading on the right column of the homepage.
 4. In Chrome, open your [extensions page](chrome://extensions/) and ensure "Developer mode" is on in the upper right corner.
 5. Drag the release.zip file to your Chrome extensions page.
 6. (Optional) Click on the "Details" button of the extension, and then the "Extension options" link.  Enter an OpenAI API Key and Organization then close this page.
