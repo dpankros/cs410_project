@@ -53,8 +53,10 @@ jobs:
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@latest"
         if: ${{ github.ref_name == 'main' || github.ref_name == 'develop' }}
+        permissions:
+          contents: write
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ github.token }}
           prerelease: ${{ github.ref_name != 'main' }}
           automatic_release_tag: latest:node${{ matrix.node-version }}
           files: |
