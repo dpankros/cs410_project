@@ -17,7 +17,7 @@ jobs:
   build:
 
     env:
-      PROJECT_VERSION: ${{ fromJson( format('{0}/{1}', github.workspace, 'package.json') ).version }}
+      PROJECT_VERSION: ${{ 'package.json' ).version }}
       IS_PRERELEASE: ${{ github.ref_name != 'main' }}
     runs-on: ubuntu-latest
     permissions:
