@@ -40,9 +40,10 @@ export class CampusWireApi {
             title: post.title.replaceAll('==', ''),
             postNumber: post.number,
             body: post.body.replaceAll('==', ''),
-            postId: post.id,
+            id: post.id,
             groupId: post.group,
             publishedAt: new Date(post.publishedAt),
+            url:`https://campuswire.com/c/G${(post.group.split('-'))[0].toUpperCase()}/feed/${post.number}`,
         }));
     }
 }
