@@ -6,10 +6,12 @@ name: Node.js CI - Build and Archive
 on:
   push:
     branches:
+      - "main"
       - "develop"
       - "feature/**"
   pull_request:
     branches:
+      - "main"
       - "develop"
       - "feature/**"
 
