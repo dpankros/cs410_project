@@ -57,7 +57,7 @@ jobs:
         with:
           repo_token: ${{ github.token }}
           prerelease: ${{ github.ref_name != 'main' }}
-          automatic_release_tag: fromJson('package.json').version
+          automatic_release_tag: ${{ fromJson('package.json').version }}
           files: |
             build/release.zip
 
