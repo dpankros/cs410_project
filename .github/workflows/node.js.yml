@@ -43,3 +43,22 @@ jobs:
           path: |
             build 
 
+      - name: Create Distribution
+        uses: thedoctor0/zip-release@0.7.5
+        with:
+          type: zip
+          filename: 'release.zip'
+          directory: build
+
+      - name: Create Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          if: ${{ github.ref_name == 'main' || github.ref_name == 'develop' }}
+          prerelease: ${{ github.ref_name != 'main' }}
+          automatic_release_tag: latest:node${{ matrix.node-version }}
+          files: |
+            release.zip
+
+
+
