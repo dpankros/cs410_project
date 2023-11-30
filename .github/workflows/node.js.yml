@@ -16,6 +16,9 @@ on:
 jobs:
   build:
 
+    env:
+      PROJECT_VERSION: ${{ fromJson( format('{0}/{1]', ${GITHUB_WORKSPACE}, 'package.json') ).version }}
+      IS_PRERELEASE: ${{ github.ref_name != 'main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -56,8 +59,8 @@ jobs:
         if: ${{ ( github.ref_name == 'main' || github.ref_name == 'develop' ) && startsWith( matrix.node-version, '18') }}
         with:
           repo_token: ${{ github.token }}
-          prerelease: ${{ github.ref_name != 'main' }}
-          automatic_release_tag: ${{ fromJson('package.json').version }}
+          prerelease: ${{ IS_PRERELEASE }}
+          automatic_release_tag: ${{ PROJECT_VERSION }}
           files: |
             build/release.zip
 
