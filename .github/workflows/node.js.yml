@@ -59,8 +59,8 @@ jobs:
         if: ${{ ( github.ref_name == 'main' || github.ref_name == 'develop' ) && startsWith( matrix.node-version, '18') }}
         with:
           repo_token: ${{ github.token }}
-          prerelease: ${{ IS_PRERELEASE }}
-          automatic_release_tag: ${{ PROJECT_VERSION }}
+          prerelease: $IS_PRERELEASE
+          automatic_release_tag: $PROJECT_VERSION
           files: |
             build/release.zip
 
