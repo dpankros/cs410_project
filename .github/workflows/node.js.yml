@@ -5,12 +5,12 @@ name: Node.js CI - Build and Archive
 
 on:
   push:
-    branches: 
+    branches:
       - "develop"
       - "feature/**"
   pull_request:
-    branches: 
-      - "develop" 
+    branches:
+      - "develop"
       - "feature/**"
 
 jobs:
@@ -30,10 +30,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - name: Build 
+      - name: Build
         run: |
           npm ci
           npm run build --if-present
+          echo "Build Complete"
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
