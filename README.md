@@ -71,16 +71,25 @@ GitHub Actions are used to automatically build the extension.
 
 ## Deploy
 
-(Optional) Automated build
+### From an Automated Release
 
-1. Download zip file from automated build. The binary can be retrieved from any successful build 
-in the repository by navigating to: Actions -> Select a workflow run from list -> Click 'build' under the Artifacts section. 
-1. Extract zip
+1. Click on "tags" under the Releases heading on the right column of the homepage.
+2. Click on the release you want, or "latest"
+3. Download the release.zip file, listed under the Assets heading.
+4. In Chrome, open your [extensions page](chrome://extensions/) and ensure "Developer mode" is on in the upper right corner.
+5. Drag the release.zip file to your Chrome extensions page.
+6. (Optional) Click on the "Details" button of the extension, and then the "Extension options" link.  Enter an OpenAI API Key and Organization then close this page.
+1. Open a new tab in the browser and navigate to [Campuswire](https://www.campuswire.com)
 
-In the Chrome Browser:
+_NOTE: Sometimes Chrome does not install the extension when dragged onto the extensions page.  If this happens to you, refresh the page and it should work properly._
 
-1. Activate Developer Mode in extensions.
+### From Source
+
+1. Checkout the source of this project
+2. Run `npm i` then `npm start`.  A build folder will be created.
+4. In Chrome, open your [extensions page](chrome://extensions/) and ensure "Developer mode" is on in the upper right corner.
 1. Click "Load unpacked"
-1. Load either the local build folder or the extracted folder from automated build
+1. Select the build folder created, above.
+2. (Optional) Click on the "Details" button of the extension, and then the "Extension options" link.  Enter an OpenAI API Key and Organization then close this page.
 1. Open a new tab in the browser and navigate to [Campuswire](https://www.campuswire.com)
 
