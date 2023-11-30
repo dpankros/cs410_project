@@ -36,7 +36,7 @@ export class CampusWireApi {
         const jsonData = await fetchResult.json();
         const { posts = [] } = jsonData;
         // Extracting desired information for each post
-        return posts.map((post,index) => ({
+        return posts.map(post => ({
             title: post.title.replaceAll('==', ''),
             postNumber: post.number,
             body: post.body.replaceAll('==', ''),
