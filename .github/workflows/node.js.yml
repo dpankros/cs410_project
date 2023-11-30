@@ -59,7 +59,7 @@ jobs:
           prerelease: ${{ github.ref_name != 'main' }}
           automatic_release_tag: latest
           files: |
-            release.zip
+            build/release.zip
 
 
 
