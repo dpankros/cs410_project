@@ -37,7 +37,19 @@ document.body.addEventListener("click", function() {
     oldUrl = newUrl;
 });
 
+async function onMessage(msg) {
+    if (!msg) return;
+    const { type } = msg;
+    switch ( type ) {
+        case 'PAGE_INFO_REQUEST':
+            await onLoadPost();
+            break;
+        default:
+            console.log('Ignoring unhandled message', msg);
+    }
+}
 
+chrome.runtime.onMessage.addListener(onMessage);
 
 (async () => {
     //
@@ -45,6 +57,7 @@ document.body.addEventListener("click", function() {
     //
     let retryCount = 0;
     let recheckTimer = setInterval(() => {
+        console.log('Checking for loaded post')
         const body = this.document.getElementsByClassName(POST_BODY_CSS_CLASS);
         if (body && body.length > 0) {
             clearInterval(recheckTimer);
@@ -56,5 +69,5 @@ document.body.addEventListener("click", function() {
             clearInterval(recheckTimer);
         }
     }, RETRY_INTERVAL_MS);
-
+    console.log('Loaded Campuswire.js')
 })();

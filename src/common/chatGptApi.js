@@ -56,7 +56,7 @@ export class ChatGptAPI {
         if (body === null) throw Error("Missing required argument: doc");
 
         const content = CHATGPT_DOCUMENT_PROMPT.replace('%BODY%', body).replace('%TITLE%', title)
-        console.log("GPT Query:", content);
+        // console.log("GPT Query:", content);
         const requestBody = {
             model: this.model,
             messages: [{ 'role': 'user', content }],
@@ -68,7 +68,7 @@ export class ChatGptAPI {
         } else {
             termsJson = EXAMPLE_TERMS_JSON;
         }
-        console.log('Suggested Terms:', termsJson)
+        // console.log('Suggested Terms:', termsJson)
         const { error = null, choices: [firstChoice, ...rest] = [] } = termsJson || {};
         if (error) {
             const { code, message } = error;

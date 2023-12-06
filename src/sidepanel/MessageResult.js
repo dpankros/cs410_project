@@ -11,6 +11,7 @@ export class MessageResult extends Component {
         this._pages = [];
         this._error = null;
         this._listener = this.onRelatedPagesUpdate.bind(this)
+        this._usedChatGPT = false;
     }
 
     componentDidMount() {
@@ -35,10 +36,11 @@ export class MessageResult extends Component {
                 break;
             case 'RELATED_PAGES':
             // case 'POST_LOADED':
-                const {pages, error} = relatedPagesMsg;
+                const {pages, error, usedChatGpt} = relatedPagesMsg;
                 this._pages = pages;
                 this._error = error;
                 this._loading = false;
+                this._usedChatGPT = !!usedChatGpt;
                 this.forceUpdate(); // forces an out of band update
                 break;
             default:
@@ -47,7 +49,7 @@ export class MessageResult extends Component {
     }
 
     render() {
-        console.log('RENDERING', this._pages, this._error, this._loading)
+        // console.log('RENDERING', this._pages, this._error, this._loading, this._usedChatGPT)
         if (this._error) {
             return <Error error={this._error}/>
         }
@@ -57,7 +59,7 @@ export class MessageResult extends Component {
         if (!this._pages || this._pages.length === 0) {
             return <NoResults/>;
         } else {
-            return <Sidepanel data={this._pages}/>
+            return <Sidepanel data={this._pages} usedChatGpt={this._usedChatGPT}/>
         }
 
     }

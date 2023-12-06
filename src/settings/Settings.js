@@ -5,7 +5,9 @@ export function Settings(props) {
     const { openAiKey, setOpenAiKey, openAiOrg, setOpenAiOrg } = props || {};
 
     return (
-        <div className="form">
+
+
+        <form className="form">
             <div className="form-row">
                 <div className="form-label">OpenID API Key</div>
                 <div className="form-input">
@@ -19,6 +21,6 @@ export function Settings(props) {
                     <FormInput type="text" size={20} onChange={setOpenAiOrg} value={openAiOrg}/>
                 </div>
             </div>
-        </div>
+        </form>
     )
 }

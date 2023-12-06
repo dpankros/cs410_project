@@ -49,7 +49,7 @@ async function getChatGptSearchTerms(body, title) {
 
 async function onPostChange(ctx, m) {
     const {type, body, title: fullTitle, url, token} = m;
-    sendMessage({type: 'POST_CHANGE_START', url }).catch(err => console.error(err));
+    sendMessage({type: 'POST_CHANGE_START', url}).catch(err => console.error(err));
     const title = fullTitle.replace(TITLE_REGEX, "$1");
     const postNumber = url.replace(POST_NUMBER_REGEX, "$1");
     console.log(`onPostChange:`, m, ctx);
@@ -67,14 +67,21 @@ async function onPostChange(ctx, m) {
 
     if (searchTerms) {
         ctx.searchTerms = searchTerms;
-        ctx.pages  = (await searchCampuswire(ctx.token, ctx.searchTerms, ctx.groupId)) || [];
+        ctx.pages = (await searchCampuswire(ctx.token, ctx.searchTerms, ctx.groupId)) || [];
         if (!Array.isArray(ctx.pages)) {
             console.log("ERROR: Pages is NOT an array");
-            ctx.pages  = [pages];
+            ctx.pages = [pages];
         }
         ctx.pages = ctx.pages.filter(p => p.postNumber != postNumber);
-        contextManager.setCurrentContext(ctx);
-        await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error, usedChatGpt: ctx.usedChatGpt });
+        console.log('Set Context -->', ctx)
+        await contextManager.setCurrentContext(ctx);
+        await sendMessage({
+            type: 'RELATED_PAGES',
+            pages: ctx.pages,
+            url: ctx.url,
+            error: ctx.error,
+            usedChatGpt: ctx.usedChatGpt
+        });
     } else {
         console.log('There were no search terms.')
         ctx.searchTerms = null;
@@ -85,10 +92,17 @@ async function onPostChange(ctx, m) {
 
 async function onRelatedPagesRequest(ctx, msg) {
     console.log(`onRelatedPagesRequest:`, msg, ctx);
-    await sendMessage({type: 'RELATED_PAGES', pages: ctx.pages, url: ctx.url, error: ctx.error, usedChatGpt: ctx.usedChatGpt  });
+    await sendMessage({
+        type: 'RELATED_PAGES',
+        pages: ctx.pages,
+        url: ctx.url,
+        error: ctx.error,
+        usedChatGpt: ctx.usedChatGpt
+    });
 }
 
 async function handleMessage(msg) {
+    console.log('Background.js received message:', msg)
     if (!msg) return;
     const ctx = await contextManager.getCurrentContext();
 
@@ -98,7 +112,7 @@ async function handleMessage(msg) {
             await onPostChange(ctx, msg)
             break;
         case 'RELATED_PAGES_REQUEST':
-            await onRelatedPagesRequest(ctx,msg)
+            await onRelatedPagesRequest(ctx, msg)
             break;
         default:
             console.warn('Unhandled message:', msg);
@@ -117,14 +131,13 @@ async function sendMessage(msg) {
 }
 
 
-
 chrome.runtime.onStartup.addListener(e => console.log('background: On Startup'));
 chrome.runtime.onSuspend.addListener(e => console.log('background: On Suspend'));
-chrome.webRequest.onBeforeRequest.addListener(async ({ url, tabId }) => {
+chrome.webRequest.onBeforeRequest.addListener(async ({url, tabId}) => {
     const ctx = await contextManager.getContext(tabId);
     const newGroupId = extractGroupIdFromUrl(url);
     if (newGroupId !== null && newGroupId !== ctx.groupId) {
-        sendMessage({ type: 'GROUP_CHANGED', oldGroupId: ctx.groupId, newGroupId });
+        sendMessage({type: 'GROUP_CHANGED', oldGroupId: ctx.groupId, newGroupId});
         ctx.groupId = newGroupId;
         await contextManager.setCurrentContext(ctx);
     }
@@ -133,21 +146,83 @@ chrome.webRequest.onBeforeRequest.addListener(async ({ url, tabId }) => {
     // types: ['main_frame', 'sub_frame', 'xmlhttprequest', 'script', 'other'],
 });
 
-// this gets hit whenever the extension is updated
 chrome.runtime.onInstalled.addListener(async (details) => {
-    for (const cs of chrome.runtime.getManifest().content_scripts) {
-        for (const tab of await chrome.tabs.query({url: cs.matches})) {
-            chrome.scripting.executeScript({
-                target: {tabId: tab.id},
-                files: cs.js,
-            });
+    installContentScripts()
+})
+
+function parseMatchPattern(input) {
+    if (typeof input !== 'string') return null;
+    var match_pattern = '(?:^'
+        , regEscape = function (s) {
+        return s.replace(/[[^$.|?*+(){}\\]/g, '\\$&');
+    }
+        , result = /^(\*|https?|file|ftp|chrome-extension):\/\//.exec(input);
+
+    // Parse scheme
+    if (!result) return null;
+    input = input.substr(result[0].length);
+    match_pattern += result[1] === '*' ? 'https?://' : result[1] + '://';
+
+    // Parse host if scheme is not `file`
+    if (result[1] !== 'file') {
+        if (!(result = /^(?:\*|(\*\.)?([^\/*]+))(?=\/)/.exec(input))) return null;
+        input = input.substr(result[0].length);
+        if (result[0] === '*') {    // host is '*'
+            match_pattern += '[^/]+';
+        } else {
+            if (result[1]) {         // Subdomain wildcard exists
+                match_pattern += '(?:[^/]+\\.)?';
+            }
+            // Append host (escape special regex characters)
+            match_pattern += regEscape(result[2]);
         }
     }
-});
+    // Add remainder (path)
+    match_pattern += input.split('*').map(regEscape).join('.*');
+    match_pattern += '$)';
+    return match_pattern;
+}
 
-chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-    const {pages, url, error} = contextManager.getContext(tabId).json;
-    await sendMessage({type: 'RELATED_PAGES', pages, url, error, tabId});
+async function installContentScripts() {
+    console.log('Instalilng scripts');
+
+    let contentScripts = chrome.runtime.getManifest().content_scripts;
+    // Exclude CSS files - CSS is automatically inserted.
+    contentScripts = contentScripts.filter(function (content_script) {
+        return content_script.js && content_script.js.length > 0;
+    });
+
+    await Promise.all(contentScripts.map(async function (contentScript) {
+        try {
+            // NOTE: an array of patterns is only supported in Chrome 39+
+            chrome.tabs.query({
+                url: contentScript.matches
+            }, injectScripts);
+        } catch (e) {
+            // NOTE: This requires the "tabs" permission!
+            chrome.tabs.query({}, async function (tabs) {
+                const parsed = contentScript.matches.map(parseMatchPattern);
+                const pattern = new RegExp(parsed.join('|'));
+                tabs = tabs.filter(function (tab) {
+                    return pattern.test(tab.url);
+                });
+                await injectScripts(tabs);
+            });
+        }
+
+        async function injectScripts(tabs) {
+            tabs.forEach(function (tab) {
+                // content_script.js.forEach(function (js) {
+                chrome.scripting.executeScript({target: {tabId: tab.id}, files: contentScript.js});
+                // });
+            });
+        }
+    }))
+}
+
+chrome.tabs.onActivated.addListener(async ({tabId}) => {
+    const ctx = contextManager.getContext(tabId).json;
+    await sendMessage({type: 'RELATED_PAGES', ...ctx});
 })
 chrome.runtime.onMessage.addListener(handleMessage);
 
