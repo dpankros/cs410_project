@@ -5,8 +5,9 @@ export function FormInput (props) {
     return (
         <input
             {...passThrough}
+            className="form-control"
             type={type}
-            size={size}
+            // size={size}
             value={value}
             onChange={e => onChange(e.target.value)}
         />

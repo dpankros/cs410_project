@@ -8,18 +8,24 @@ export function Settings(props) {
 
 
         <form className="form">
-            <div className="form-row">
-                <div className="form-label">OpenID API Key</div>
-                <div className="form-input">
-                    <FormInput type="text" size={20} onChange={setOpenAiKey} value={openAiKey}/>
+            <div className="mb-3">
+                <label for="key" class="form-label">OpenAI API Key</label>
+                <FormInput id="key" type="text" onChange={setOpenAiKey} value={openAiKey}/>
+                <div id="keyHelpBlock" class="form-text">
+                    An OpenAI API Key.  Create one at <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a>
                 </div>
             </div>
 
-            <div className="form-row">
-                <div className="form-label">OpenID Organization (Optional)</div>
-                <div className="form-input">
-                    <FormInput type="text" size={20} onChange={setOpenAiOrg} value={openAiOrg}/>
+            <div className="mb-3">
+                <label htmlFor="org" className="form-label">OpenAI Organization (Optional)</label>
+                <FormInput id="org" type="text" onChange={setOpenAiOrg} value={openAiOrg}/>
+                <div id="orfyHelpBlock" className="form-text">
+                    An OpenAI Organization, if set.  This can be found at <a href="https://platform.openai.com/account/organization" target="_blank">OpenAI Organization Settings</a>
                 </div>
+            </div>
+
+            <div id="generalHelpBlock" class="form-text">
+                Your changes will take effect immediately
             </div>
         </form>
     )

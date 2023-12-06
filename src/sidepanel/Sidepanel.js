@@ -71,7 +71,7 @@ function SidepanelItem(props) {
 }
 
 function OptionsButton({ children, ...rest }) {
-    return <a {...rest} onClick={() => chrome.runtime.openOptionsPage()}>{children}</a>
+    return <a {...rest} onClick={() => chrome.runtime.openOptionsPage()}><span style={{textDecoration: 'underline'}}>{children}</span></a>
 }
 
 function NoGptWarning(props) {

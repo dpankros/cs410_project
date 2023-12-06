@@ -11,7 +11,7 @@ const POST_NUMBER_REGEX = /^.+\/feed\/(\d+)\/?.*/gi;
 const contextManager = new ContextManager(CampuswireContext);
 
 async function searchCampuswire(bearerToken, searchTerms, groupId) {
-    console.log(`Has token: ${!!bearerToken} Search: ${searchTerms} GroupId: ${groupId}`)
+    // console.log(`Has token: ${!!bearerToken} Search: ${searchTerms} GroupId: ${groupId}`)
     if (!searchTerms || !groupId || !bearerToken) {
         return [];
     }
@@ -52,7 +52,7 @@ async function onPostChange(ctx, m) {
     sendMessage({type: 'POST_CHANGE_START', url}).catch(err => console.error(err));
     const title = fullTitle.replace(TITLE_REGEX, "$1");
     const postNumber = url.replace(POST_NUMBER_REGEX, "$1");
-    console.log(`onPostChange:`, m, ctx);
+    // console.log(`onPostChange:`, m, ctx);
 
     ctx.setValues({url, token, postNumber});
 
@@ -73,7 +73,6 @@ async function onPostChange(ctx, m) {
             ctx.pages = [pages];
         }
         ctx.pages = ctx.pages.filter(p => p.postNumber != postNumber);
-        console.log('Set Context -->', ctx)
         await contextManager.setCurrentContext(ctx);
         await sendMessage({
             type: 'RELATED_PAGES',
@@ -91,7 +90,7 @@ async function onPostChange(ctx, m) {
 }
 
 async function onRelatedPagesRequest(ctx, msg) {
-    console.log(`onRelatedPagesRequest:`, msg, ctx);
+    // console.log(`onRelatedPagesRequest:`, msg, ctx);
     await sendMessage({
         type: 'RELATED_PAGES',
         pages: ctx.pages,
@@ -102,7 +101,6 @@ async function onRelatedPagesRequest(ctx, msg) {
 }
 
 async function handleMessage(msg) {
-    console.log('Background.js received message:', msg)
     if (!msg) return;
     const ctx = await contextManager.getCurrentContext();
 
@@ -122,7 +120,7 @@ async function handleMessage(msg) {
 
 async function sendMessage(msg) {
     try {
-        console.log('BACKGROUND - Sending', msg)
+        // console.log('BACKGROUND - Sending', msg)
         await chrome.runtime.sendMessage(msg);
     } catch (err) {
         console.log(err);
@@ -184,7 +182,7 @@ function parseMatchPattern(input) {
 }
 
 async function installContentScripts() {
-    console.log('Instalilng scripts');
+    console.log('Installing scripts');
 
     let contentScripts = chrome.runtime.getManifest().content_scripts;
     // Exclude CSS files - CSS is automatically inserted.
@@ -194,12 +192,10 @@ async function installContentScripts() {
 
     await Promise.all(contentScripts.map(async function (contentScript) {
         try {
-            // NOTE: an array of patterns is only supported in Chrome 39+
             chrome.tabs.query({
                 url: contentScript.matches
             }, injectScripts);
         } catch (e) {
-            // NOTE: This requires the "tabs" permission!
             chrome.tabs.query({}, async function (tabs) {
                 const parsed = contentScript.matches.map(parseMatchPattern);
                 const pattern = new RegExp(parsed.join('|'));
