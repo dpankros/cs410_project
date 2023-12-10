@@ -1,5 +1,9 @@
 # CS410 Project - Team DAMDT - Fall 2023
 
+## Final Submission
+
+- Setup https://youtu.be/PRn2CEoyLtc
+- Walkthrough https://youtu.be/JcK99AcLFAI
 
 ## Team Members
 
