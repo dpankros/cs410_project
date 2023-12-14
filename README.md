@@ -3,7 +3,8 @@
 ## Final Submission
 
 - Setup https://youtu.be/PRn2CEoyLtc
-- Walkthrough https://youtu.be/JcK99AcLFAI
+- Demo Walkthrough https://youtu.be/JcK99AcLFAI
+- Technical Walkthrough https://youtu.be/tSTnyEb3fmg
 
 ## Team Members
 
