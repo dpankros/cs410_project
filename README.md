@@ -106,13 +106,6 @@ Documentation for pertinent code contained in this repository.
 
 ### CampusWireApi
 
-
->description:
->
->inputs: 
->
->outputs: 
-
 #### Functions
 
 _authorization()_
