@@ -98,9 +98,11 @@ _NOTE: Sometimes Chrome does not install the extension when dragged onto the ext
 1. Open a new tab in the browser and navigate to [Campuswire](https://www.campuswire.com)
 
 
-## Documentation
+## Class Documentation
 
 Documentation for pertinent code contained in this repository.
+
+![](class_diagram.png)
 
 ### CampusWireApi
 
